@@ -1,0 +1,17 @@
+{
+  "result": "已列出可用资源。",
+  "metadata": {
+    "model": "none",
+    "latency_ms": 0,
+    "cost_estimate": "0",
+    "trace_id": "trace-example"
+  },
+  "sources": [
+    {
+      "path": "notes/00-roadmap.md",
+      "excerpt": "AI Agent 后端应用开发学习总规划"
+    }
+  ],
+  "errors": []
+}
+

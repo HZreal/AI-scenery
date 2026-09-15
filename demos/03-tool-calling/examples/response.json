@@ -1,0 +1,21 @@
+{
+  "result": "总价为 309.60 元。",
+  "metadata": {
+    "model": "example-model",
+    "latency_ms": 0,
+    "cost_estimate": "example",
+    "trace_id": "trace-example"
+  },
+  "tool_calls": [
+    {
+      "name": "calculate_discount_total",
+      "arguments": {
+        "unit_price": 129,
+        "quantity": 3,
+        "discount": 0.8
+      }
+    }
+  ],
+  "errors": []
+}
+

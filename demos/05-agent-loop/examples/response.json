@@ -1,0 +1,17 @@
+{
+  "result": "任务已完成，摘要见 result。",
+  "metadata": {
+    "model": "example-model",
+    "latency_ms": 0,
+    "cost_estimate": "example",
+    "trace_id": "trace-example"
+  },
+  "steps": [
+    "plan",
+    "search",
+    "summarize"
+  ],
+  "tool_calls": [],
+  "errors": []
+}
+

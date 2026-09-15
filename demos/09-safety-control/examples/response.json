@@ -1,0 +1,15 @@
+{
+  "result": "操作已进入待审批状态。",
+  "metadata": {
+    "model": "example-model",
+    "latency_ms": 0,
+    "cost_estimate": "example",
+    "trace_id": "trace-example"
+  },
+  "steps": [
+    "classify_risk",
+    "request_approval"
+  ],
+  "errors": []
+}
+

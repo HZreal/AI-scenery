@@ -1,0 +1,16 @@
+{
+  "result": "规划、执行和审查已完成。",
+  "metadata": {
+    "model": "example-model",
+    "latency_ms": 0,
+    "cost_estimate": "example",
+    "trace_id": "trace-example"
+  },
+  "steps": [
+    "planner",
+    "worker",
+    "reviewer"
+  ],
+  "errors": []
+}
+

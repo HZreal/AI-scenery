@@ -1,0 +1,10 @@
+{
+  "result": "AI Agent 是能围绕目标自主规划步骤、调用工具并根据反馈继续执行的 AI 应用形态。",
+  "metadata": {
+    "model": "example-model",
+    "latency_ms": 0,
+    "cost_estimate": "example",
+    "trace_id": "trace-example"
+  }
+}
+

@@ -1,0 +1,17 @@
+{
+  "result": "Agent Loop 通常需要最大步骤数、任务完成判断、失败阈值或人工介入作为停止条件。",
+  "metadata": {
+    "model": "example-model",
+    "latency_ms": 0,
+    "cost_estimate": "example",
+    "trace_id": "trace-example"
+  },
+  "sources": [
+    {
+      "path": "notes/05-agent-loop.md",
+      "excerpt": "停止条件。失败恢复与重试。执行过程可观察性。"
+    }
+  ],
+  "errors": []
+}
+

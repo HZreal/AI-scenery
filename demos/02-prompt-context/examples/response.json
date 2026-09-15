@@ -1,0 +1,10 @@
+{
+  "result": "这是一段按照 v1 prompt 生成的摘要样例。",
+  "metadata": {
+    "model": "example-model",
+    "latency_ms": 0,
+    "cost_estimate": "example",
+    "trace_id": "trace-example"
+  }
+}
+

@@ -1,0 +1,11 @@
+{
+  "result": "已记录偏好：后续回答会优先给代码例子。",
+  "metadata": {
+    "model": "example-model",
+    "latency_ms": 0,
+    "cost_estimate": "example",
+    "trace_id": "trace-example"
+  },
+  "errors": []
+}
+

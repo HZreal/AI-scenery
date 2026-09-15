@@ -1,0 +1,11 @@
+{
+  "result": "评测完成。",
+  "metadata": {
+    "model": "none",
+    "latency_ms": 0,
+    "cost_estimate": "0",
+    "trace_id": "trace-example"
+  },
+  "errors": []
+}
+
