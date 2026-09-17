@@ -1,0 +1,27 @@
+{
+  "name": "ai-scenery",
+  "version": "1.0.0",
+  "description": "AI Scenery 是一个用于个人学习 AI 与 AI Agent 后端应用开发的笔记和实践仓库。",
+  "private": true,
+  "scripts": {
+    "test": "npm run test:python && npm run test:node && npm run test:go",
+    "test:python": "PYTHONPATH=demos/01-llm-api/src uv run python -m unittest discover -s demos/01-llm-api/tests -v",
+    "test:node": "node --test",
+    "test:go": "go test ./..."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HZreal/AI-scenery.git"
+  },
+  "keywords": [
+    "ai",
+    "ai-agent",
+    "learning"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/HZreal/AI-scenery/issues"
+  },
+  "homepage": "https://github.com/HZreal/AI-scenery#readme"
+}

@@ -1,10 +1,18 @@
 {
-  "result": "AI Agent 是能围绕目标自主规划步骤、调用工具并根据反馈继续执行的 AI 应用形态。",
+  "result": {
+    "topic": "LLM API",
+    "summary": "结构化输出以 JSON 对象返回。",
+    "key_points": ["消息结构", "上下文预算", "SSE"]
+  },
   "metadata": {
-    "model": "example-model",
+    "model": "mock-llm",
     "latency_ms": 0,
-    "cost_estimate": "example",
+    "input_characters": 21,
+    "usage": {
+      "input_tokens": null,
+      "output_tokens": null
+    },
+    "cost_estimate_usd": null,
     "trace_id": "trace-example"
   }
 }
-

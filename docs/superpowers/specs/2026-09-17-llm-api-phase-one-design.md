@@ -60,6 +60,8 @@ Provider 的非流式结果包含文本/JSON、usage 和模型名。OpenAI 的 u
 
 ## 测试与验收
 
+这是学习 Demo，测试只覆盖关键公开契约和高风险分支，不为简单辅助函数追求覆盖率。
+
 - Schema：消息简写、messages 角色、互斥校验、上下文超限。
 - 服务：text、JSON 对象、usage/成本、Provider 错误携带 trace。
 - 路由：健康检查、正常/错误响应、SSE 事件序列。

@@ -28,6 +28,36 @@ resources/          # 论文、官方文档、数据集和资料
 scripts/            # 评测、导入、辅助脚本
 ```
 
+## 运行时与依赖管理
+
+项目是 Python、Node.js 和 Go 的混合学习仓库。各语言的依赖和模块入口统一放在根目录：
+
+- Python：使用 [uv](https://docs.astral.sh/uv/) 管理，项目专用环境位于 `.venv/`，不会向系统 Python 安装包。
+- Node.js：使用 `package.json` 和 npm 管理。当前不含第三方 npm 依赖。
+- Go：使用 `go.mod` 管理，module 为 `github.com/HZreal/AI-scenery`。
+
+首次拉取项目后，同步 Python 环境：
+
+```bash
+uv sync
+```
+
+常用验证命令：
+
+```bash
+npm test
+PYTHONPATH=demos/01-llm-api/src uv run python -m unittest discover -s demos/01-llm-api/tests -v
+go test ./...
+```
+
+为 Python demo 添加依赖时，在项目根目录执行：
+
+```bash
+uv add <package>
+```
+
+不要使用全局 `pip install`；`uv add` 会更新 `pyproject.toml` 和 `uv.lock`，并安装到本项目的 `.venv/`。
+
 每个 demo 建议使用统一结构：
 
 ```text
@@ -62,4 +92,3 @@ demos/<number>-<topic>/
 - 有请求和响应样例。
 - 有至少 2-3 个验证场景。
 - 有复盘：适用场景、坑点、下一步。
-
