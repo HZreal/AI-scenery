@@ -82,7 +82,8 @@ class OpenAIResponsesProvider:
 
     def generate(self, request: ChatRequest) -> ProviderResult:
         data = self._request(self._payload(request, stream=False))
-        output = data.get("output_text")
+        # Raw REST responses expose text inside output content; output_text is SDK-only.
+        output = extract_output_text(data)
         if not isinstance(output, str):
             raise ChatError("provider_response_invalid", "OpenAI response did not contain output text", 500)
         if request.mode == "json":
@@ -100,6 +101,8 @@ class OpenAIResponsesProvider:
                 for raw in response:
                     line = raw.decode().strip()
                     if line.startswith("data: "):
+                        if line[6:] == "[DONE]":
+                            return
                         event = json.loads(line[6:])
                         if event.get("type") == "response.output_text.delta":
                             yield event.get("delta", "")
@@ -142,7 +145,10 @@ def request_from_payload(payload: dict[str, Any]) -> ChatRequest:
 
 def max_input_characters() -> int:
     try:
-        return max(1, int(os.environ.get("MAX_INPUT_CHARS", "12000")))
+        limit = int(os.environ.get("MAX_INPUT_CHARS", "12000"))
+        if limit <= 0:
+            raise ValueError
+        return limit
     except ValueError as exc:
         raise ChatError("invalid_context_limit", "MAX_INPUT_CHARS must be a positive integer", 500) from exc
 
@@ -155,6 +161,14 @@ def create_chat_response(request: ChatRequest, provider: LLMProvider, trace_id: 
     started = time.perf_counter()
     result = provider.generate(request)
     return {"result": result.result, "metadata": metadata(result, request.input_characters, trace_id, int((time.perf_counter() - started) * 1000))}
+
+
+def extract_output_text(data: dict[str, Any]) -> str | None:
+    for item in data.get("output", []):
+        for content in item.get("content", []):
+            if content.get("type") == "output_text" and isinstance(content.get("text"), str):
+                return content["text"]
+    return None
 
 
 def metadata(result: ProviderResult, input_characters: int, trace_id: str, latency_ms: int = 0) -> dict[str, Any]:
