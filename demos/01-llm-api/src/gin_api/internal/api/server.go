@@ -30,6 +30,8 @@ func NewServer(llm provider.Provider, maxInputChars int) *gin.Engine {
 	server := server{provider: llm, maxInputChars: maxInputChars}
 	router := gin.New()
 	router.Use(gin.Logger(), gin.Recovery())
+	router.GET("/", func(c *gin.Context) { c.Redirect(http.StatusFound, "/public/") })
+	router.StaticFS("/public", http.Dir("demos/01-llm-api/src/public"))
 	router.GET("/health", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "ok"}) })
 	router.GET("/openapi.json", func(c *gin.Context) { c.JSON(http.StatusOK, openAPISpec) })
 	router.GET("/docs", swaggerUI)

@@ -10,6 +10,7 @@
 - `openAIProvider` 使用官方 `openai-go` 的 Responses API，并保留 `system/user/assistant` 消息角色。
 - Gin 提供 `POST /api/chat`、`GET /health`、`GET /openapi.json` 和 `GET /docs`。
 - `stream=true` 使用稳定的 SSE 事件：`metadata`、`delta`、`completed`、`error`。
+- `../public/index.html` 是零依赖的流式聊天页面，由 Gin 在 `/public/` 提供。
 
 ## 配置环境变量
 
@@ -69,6 +70,7 @@ GoLand 应使用当前安装的 Go 1.26.8 SDK（`/usr/local/go`）。该运行�
 curl http://127.0.0.1:8002/health
 open http://127.0.0.1:8002/docs
 curl -s http://127.0.0.1:8002/openapi.json | python3 -m json.tool
+open http://127.0.0.1:8002/public/
 ```
 
 在 Swagger UI 中展开 `POST /api/chat`，点击 `Try it out` 可直接调试。也可以使用命令行：
@@ -94,6 +96,12 @@ curl -N -X POST http://127.0.0.1:8002/api/chat \
   -H 'Content-Type: application/json' \
   -d '{"message":"流式响应有什么用？","stream":true}'
 ```
+
+## 流式聊天页面
+
+启动服务后访问 `http://127.0.0.1:8002/`，会跳转到 `/public/` 中的聊天页面。页面通过 `fetch` 读取 SSE 数据流，将每个 `delta` 事件立即追加到助手消息中，并在下一轮请求中提交当前页面的对话历史。
+
+修改 `public/index.html` 后需要重启 Gin 服务，已启动的旧进程不会自动加载新的路由或静态文件。
 
 ## 运行测试
 

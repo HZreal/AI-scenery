@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LLM 流式聊天</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #e9eee9;
+        --muted: #9ba7a0;
+        --surface: #121714;
+        --surface-raised: #1a211d;
+        --line: #304038;
+        --accent: #b8e26d;
+        --accent-ink: #15200a;
+        --danger: #ff8e7c;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+        background: #0d110f;
+        color: var(--ink);
+        font-family: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", sans-serif;
+      }
+
+      button, textarea { font: inherit; }
+
+      .app {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        min-height: 100dvh;
+        max-width: 960px;
+        margin: 0 auto;
+        border-inline: 1px solid var(--line);
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 64px;
+        padding: 0 22px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      h1 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: 0; }
+      .status { color: var(--muted); font-family: "SF Mono", "Menlo", monospace; font-size: 12px; }
+      .status[data-state="streaming"] { color: var(--accent); }
+      .status[data-state="error"] { color: var(--danger); }
+
+      #messages {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        overflow-y: auto;
+        padding: 28px 22px;
+      }
+
+      .message { display: grid; gap: 7px; max-width: min(720px, 88%); }
+      .message.user { align-self: end; }
+      .role { color: var(--muted); font-size: 12px; font-family: "SF Mono", "Menlo", monospace; }
+      .message.user .role { text-align: right; }
+      .bubble {
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: var(--surface);
+        line-height: 1.65;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      .message.user .bubble { background: var(--surface-raised); border-color: #536458; }
+      .message.error .bubble { color: var(--danger); border-color: #73433d; }
+
+      form {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        padding: 16px 22px 22px;
+        border-top: 1px solid var(--line);
+      }
+
+      textarea {
+        min-height: 48px;
+        max-height: 160px;
+        resize: vertical;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        outline: none;
+        color: var(--ink);
+        background: var(--surface);
+        line-height: 1.45;
+      }
+      textarea:focus { border-color: var(--accent); }
+      button {
+        align-self: end;
+        height: 48px;
+        padding: 0 18px;
+        border: 0;
+        border-radius: 6px;
+        color: var(--accent-ink);
+        background: var(--accent);
+        font-weight: 700;
+        cursor: pointer;
+      }
+      button:disabled { cursor: wait; opacity: 0.55; }
+
+      @media (max-width: 600px) {
+        .app { border: 0; }
+        header, #messages, form { padding-inline: 16px; }
+        form { grid-template-columns: 1fr; }
+        button { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header>
+        <h1>LLM 流式聊天</h1>
+        <span id="status" class="status" data-state="ready">就绪</span>
+      </header>
+      <section id="messages" aria-live="polite"></section>
+      <form id="chat-form">
+        <textarea id="prompt" aria-label="消息" placeholder="输入消息，Enter 发送，Shift + Enter 换行" required></textarea>
+        <button id="send" type="submit">发送</button>
+      </form>
+    </main>
+
+    <script>
+      const form = document.querySelector("#chat-form");
+      const prompt = document.querySelector("#prompt");
+      const messages = document.querySelector("#messages");
+      const send = document.querySelector("#send");
+      const status = document.querySelector("#status");
+      const history = [];
+
+      function setStatus(text, state = "ready") {
+        status.textContent = text;
+        status.dataset.state = state;
+      }
+
+      function appendMessage(role, content = "", kind = "") {
+        const item = document.createElement("article");
+        item.className = `message ${role} ${kind}`;
+        const label = document.createElement("div");
+        label.className = "role";
+        label.textContent = role === "user" ? "你" : "助手";
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.textContent = content;
+        item.append(label, bubble);
+        messages.append(item);
+        item.scrollIntoView({ block: "end", behavior: "smooth" });
+        return bubble;
+      }
+
+      function readSSEChunk(buffer, onEvent) {
+        const frames = buffer.split("\n\n");
+        const remainder = frames.pop();
+        for (const frame of frames) {
+          let event = "message";
+          let data = "";
+          for (const line of frame.split("\n")) {
+            if (line.startsWith("event:")) event = line.slice(6).trim();
+            if (line.startsWith("data:")) data += line.slice(5).trim();
+          }
+          if (data) onEvent(event, JSON.parse(data));
+        }
+        return remainder;
+      }
+
+      async function streamReply(assistantBubble) {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: history, stream: true }),
+        });
+        if (!response.ok || !response.body) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error.error || "无法建立流式连接");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let answer = "";
+        while (true) {
+          const { value, done } = await reader.read();
+          buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+          buffer = readSSEChunk(buffer, (event, data) => {
+            if (event === "metadata") setStatus(`生成中 · ${data.trace_id}`, "streaming");
+            if (event === "delta") {
+              answer += data.delta;
+              assistantBubble.textContent = answer;
+              assistantBubble.parentElement.scrollIntoView({ block: "end", behavior: "smooth" });
+            }
+            if (event === "error") throw new Error(data.error || "生成失败");
+          });
+          if (done) break;
+        }
+        if (!answer) throw new Error("服务未返回文本内容");
+        history.push({ role: "assistant", content: answer });
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const content = prompt.value.trim();
+        if (!content || send.disabled) return;
+
+        history.push({ role: "user", content });
+        appendMessage("user", content);
+        prompt.value = "";
+        send.disabled = true;
+        setStatus("连接中", "streaming");
+        const assistantBubble = appendMessage("assistant");
+        try {
+          await streamReply(assistantBubble);
+          setStatus("就绪");
+        } catch (error) {
+          assistantBubble.parentElement.classList.add("error");
+          assistantBubble.textContent = error.message;
+          setStatus("请求失败", "error");
+        } finally {
+          send.disabled = false;
+          prompt.focus();
+        }
+      });
+
+      prompt.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          form.requestSubmit();
+        }
+      });
+    </script>
+  </body>
+</html>
