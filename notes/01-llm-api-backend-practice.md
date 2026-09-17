@@ -209,7 +209,23 @@ npm test
 
 当前测试只覆盖高价值契约：消息简写、上下文超限、JSON 对象、OpenAPI 路径、SSE 完成事件、错误 trace，以及原始 OpenAI 响应文本解析。
 
-## 10. 本阶段完成了什么，下一阶段学什么
+## 10. Go/Gin 的补充实现：工厂模式与 Gemini
+
+同一阶段还提供了 [Gin LLM API Demo](../demos/01-llm-api/src/gin_api/README.md)。它保留 `/api/chat`、SSE、`metadata`、`/openapi.json` 和 `/docs` 这些对调用方稳定的契约，但把模型接入替换为 Go 的分层实现：
+
+```text
+Gin Handler
+  -> Provider 接口
+  -> Factory（mock / gemini）
+  -> Gemini Provider
+  -> Google GenAI SDK
+```
+
+这两个概念要区分：`Provider` 接口让 HTTP 处理器不依赖某个模型 SDK；`Factory` 根据 `AI_SCENERY_GO_PROVIDER` 在启动时决定创建哪种 Provider。新增其他模型时，只要实现接口并在 Factory 注册 Builder，路由和响应契约都不需要修改。
+
+Gemini 的角色表达与通用消息结构不同：`system` 进入 `SystemInstruction`，`user` 保持 `user`，`assistant` 映射为 Gemini 的 `model`。适配器正是用来屏蔽这类模型厂商差异的边界。
+
+## 11. 本阶段完成了什么，下一阶段学什么
 
 本阶段已经完成“单次 LLM 后端调用”的工程骨架。它能接收结构化输入，选择 Provider，控制输入大小，处理普通/结构化/流式输出，并提供可观测 metadata 和 OpenAPI 契约。
 

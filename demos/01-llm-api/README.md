@@ -152,3 +152,5 @@ PYTHONPATH=demos/01-llm-api/src uv run python -m unittest discover -s demos/01-l
 ## 补充说明
 
 这个 demo 使用 Flask 是为了学习 Python Web API 的路由、测试客户端和 SSE 响应；仍然没有引入 OpenAI SDK，目的是把“后端 API 如何包装 LLM 调用”这件事拆清楚。后续可以用 Gin 或 Express 实现同一接口作横向比较。
+
+Go/Gin 的对应实现见 [src/gin_api/README.md](src/gin_api/README.md)，它使用模型提供商接口和工厂模式，并接入 Gemini API。
