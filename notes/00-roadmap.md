@@ -21,7 +21,7 @@
 | 学习单元 | 状态 | 已沉淀内容 |
 | --- | --- | --- |
 | 01. LLM 应用基础 | 已完成 | Flask 与 Gin API、OpenAI/Gemini Provider、结构化输出、SSE、OpenAPI、浏览器聊天页、契约测试 |
-| 02. Prompt 与上下文工程 | 进行中 | 从 system prompt、few-shot、上下文组织与版本对比开始 |
+| 02. Prompt 与上下文工程 | 进行中 | Go/Gin + Gemini Prompt 对比 API、版本化 Prompt、few-shot、上下文裁剪与 OpenAPI |
 | 03-10. Agent 能力与工程化 | 未开始 | 按既定路线逐单元推进 |
 
 第一阶段的详细复盘见 [01-llm-api-backend-practice.md](01-llm-api-backend-practice.md)。

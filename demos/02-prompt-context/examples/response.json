@@ -1,10 +1,29 @@
 {
-  "result": "这是一段按照 v1 prompt 生成的摘要样例。",
+  "result": {
+    "task": "根据资料说明为什么需要上下文裁剪。",
+    "context": {
+      "original_chars": 65,
+      "used_chars": 65,
+      "truncated": false
+    },
+    "comparisons": [
+      {
+        "version": "baseline-v1",
+        "name": "最小清晰指令",
+        "output": "上下文裁剪能减少无关信息，降低延迟和成本。"
+      },
+      {
+        "version": "grounded-v2",
+        "name": "分区上下文与示例",
+        "output": "结论：需要裁剪上下文，以减少无关信息对模型注意力、延迟和成本的影响。"
+      }
+    ]
+  },
   "metadata": {
-    "model": "example-model",
-    "latency_ms": 0,
-    "cost_estimate": "example",
+    "model": "gemini-2.5-flash-lite",
+    "latency_ms": 920,
+    "prompt_versions": 2,
+    "cost_estimate_usd": null,
     "trace_id": "trace-example"
   }
 }
-
