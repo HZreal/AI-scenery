@@ -26,9 +26,12 @@ func Load() (Config, error) {
 		Address:       env("GIN_LLM_API_ADDRESS", "127.0.0.1:8002"),
 		MaxInputChars: limit,
 		Provider: provider.Settings{
-			Name:   strings.ToLower(env("AI_SCENERY_GO_PROVIDER", "mock")),
-			APIKey: strings.TrimSpace(os.Getenv("GEMINI_API_KEY")),
-			Model:  env("GEMINI_MODEL", "gemini-3.8-flash"),
+			Name:          strings.ToLower(env("AI_SCENERY_GO_PROVIDER", "mock")),
+			GeminiAPIKey:  strings.TrimSpace(os.Getenv("GEMINI_API_KEY")),
+			GeminiModel:   env("GEMINI_MODEL", "gemini-3.8-flash"),
+			OpenAIAPIKey:  strings.TrimSpace(os.Getenv("OPENAI_API_KEY")),
+			OpenAIModel:   env("OPENAI_MODEL", "gpt-5.5"),
+			OpenAIBaseURL: strings.TrimSpace(os.Getenv("OPENAI_BASE_URL")),
 		},
 	}, nil
 }

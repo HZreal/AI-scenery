@@ -5,8 +5,9 @@
 ## 学习要点
 
 - `internal/provider.Provider` 是模型提供商抽象；HTTP 层不依赖 Gemini SDK 的类型。
-- `provider.Factory` 根据 `AI_SCENERY_GO_PROVIDER` 创建 `mock` 或 `gemini` 实现；后续新增模型只需注册新的 Builder。
+- `provider.Factory` 根据 `AI_SCENERY_GO_PROVIDER` 创建 `mock`、`gemini` 或 `openai` 实现；后续新增模型只需注册新的 Builder。
 - `geminiProvider` 使用官方 `google.golang.org/genai` SDK，将 `system/user/assistant` 映射为 Gemini 的 `systemInstruction/user/model`。
+- `openAIProvider` 使用官方 `openai-go` 的 Responses API，并保留 `system/user/assistant` 消息角色。
 - Gin 提供 `POST /api/chat`、`GET /health`、`GET /openapi.json` 和 `GET /docs`。
 - `stream=true` 使用稳定的 SSE 事件：`metadata`、`delta`、`completed`、`error`。
 
@@ -26,6 +27,16 @@ MAX_INPUT_CHARS=12000
 AI_SCENERY_GO_PROVIDER=gemini
 GEMINI_API_KEY=your-api-key
 GEMINI_MODEL=gemini-3.8-flash
+```
+
+调用 OpenAI 时改为：
+
+```bash
+AI_SCENERY_GO_PROVIDER=openai
+OPENAI_API_KEY=your-api-key
+OPENAI_MODEL=gpt-5.5
+# 可选：兼容网关或代理地址；留空时使用 OpenAI 默认地址。
+OPENAI_BASE_URL=
 ```
 
 真实密钥只放在 `.env.local`，不要打印或提交。示例模型名来自当前 Google 官方 Go SDK 文档；如该模型在你的账号不可用，请在 `.env.local` 中换成 Gemini API 控制台可用的模型名。
@@ -90,8 +101,8 @@ curl -N -X POST http://127.0.0.1:8002/api/chat \
 GOTOOLCHAIN=local go test ./...
 ```
 
-测试覆盖 API 成功与错误响应、OpenAPI 暴露、Gemini 消息角色映射，以及 Gemini 缺失密钥时的工厂保护。它们使用本地 stub 或 mock，不会发出真实 Gemini 请求。
+测试覆盖 API 成功与错误响应、OpenAPI 暴露、Gemini/OpenAI 消息角色映射，以及两种 Provider 缺失密钥时的工厂保护。它们使用本地 stub 或 mock，不会发出真实模型请求。
 
 ## 复盘
 
-工厂模式解决的是“服务启动时选择哪种提供商”，而接口抽象解决的是“HTTP 业务如何不被具体 SDK 绑住”。真实调用的网络错误、配额错误和无效 JSON 会统一映射为带 `trace_id` 的错误响应；模型价格会随时间变化，因此本 Demo 暂不硬编码成本估算。
+工厂模式解决的是“服务启动时选择哪种提供商”，而接口抽象解决的是“HTTP 业务如何不被具体 SDK 绑住”。Gemini 与 OpenAI 的 SDK 差异只存在于各自适配器中；真实调用的网络错误、配额错误和无效 JSON 会统一映射为带 `trace_id` 的错误响应。模型价格会随时间变化，因此本 Demo 暂不硬编码成本估算。

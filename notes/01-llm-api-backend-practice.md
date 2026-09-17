@@ -216,14 +216,14 @@ npm test
 ```text
 Gin Handler
   -> Provider 接口
-  -> Factory（mock / gemini）
-  -> Gemini Provider
-  -> Google GenAI SDK
+  -> Factory（mock / gemini / openai）
+  -> Gemini Provider 或 OpenAI Provider
+  -> 对应厂商 SDK
 ```
 
-这两个概念要区分：`Provider` 接口让 HTTP 处理器不依赖某个模型 SDK；`Factory` 根据 `AI_SCENERY_GO_PROVIDER` 在启动时决定创建哪种 Provider。新增其他模型时，只要实现接口并在 Factory 注册 Builder，路由和响应契约都不需要修改。
+这两个概念要区分：`Provider` 接口让 HTTP 处理器不依赖某个模型 SDK；`Factory` 根据 `AI_SCENERY_GO_PROVIDER` 在启动时决定创建 `mock`、Gemini 或 OpenAI Provider。新增其他模型时，只要实现接口并在 Factory 注册 Builder，路由和响应契约都不需要修改。
 
-Gemini 的角色表达与通用消息结构不同：`system` 进入 `SystemInstruction`，`user` 保持 `user`，`assistant` 映射为 Gemini 的 `model`。适配器正是用来屏蔽这类模型厂商差异的边界。
+Gemini 的角色表达与通用消息结构不同：`system` 进入 `SystemInstruction`，`user` 保持 `user`，`assistant` 映射为 Gemini 的 `model`。OpenAI Provider 则将三种角色作为 Responses API 的输入消息传递，并在 `mode=json` 时启用 JSON Schema。适配器正是用来屏蔽这类模型厂商差异的边界。
 
 ## 11. 本阶段完成了什么，下一阶段学什么
 

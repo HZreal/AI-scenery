@@ -16,17 +16,17 @@ type geminiProvider struct {
 }
 
 func newGeminiProvider(settings Settings) (Provider, error) {
-	if strings.TrimSpace(settings.APIKey) == "" {
+	if strings.TrimSpace(settings.GeminiAPIKey) == "" {
 		return nil, chat.NewError("missing_api_key", "AI_SCENERY_GO_PROVIDER=gemini 时必须设置 GEMINI_API_KEY", 500)
 	}
 	client, err := genai.NewClient(context.Background(), &genai.ClientConfig{
-		APIKey:  settings.APIKey,
+		APIKey:  settings.GeminiAPIKey,
 		Backend: genai.BackendGeminiAPI,
 	})
 	if err != nil {
 		return nil, chat.NewError("provider_initialization_failed", "Gemini 客户端初始化失败: "+err.Error(), 502)
 	}
-	return &geminiProvider{client: client, model: settings.Model}, nil
+	return &geminiProvider{client: client, model: settings.GeminiModel}, nil
 }
 
 func (p *geminiProvider) Generate(ctx context.Context, request chat.Request) (chat.Result, error) {

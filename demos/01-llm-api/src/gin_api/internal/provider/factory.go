@@ -16,13 +16,14 @@ func NewFactory() *Factory {
 	return &Factory{builders: map[string]Builder{
 		"mock":   newMockProvider,
 		"gemini": newGeminiProvider,
+		"openai": newOpenAIProvider,
 	}}
 }
 
 func (f *Factory) Create(settings Settings) (Provider, error) {
 	builder, exists := f.builders[settings.Name]
 	if !exists {
-		return nil, chat.NewError("invalid_provider", "AI_SCENERY_GO_PROVIDER 必须是 mock 或 gemini", 500)
+		return nil, chat.NewError("invalid_provider", "AI_SCENERY_GO_PROVIDER 必须是 mock、gemini 或 openai", 500)
 	}
 	provider, err := builder(settings)
 	if err != nil {

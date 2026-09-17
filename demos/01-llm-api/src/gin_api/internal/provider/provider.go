@@ -12,7 +12,10 @@ type Provider interface {
 }
 
 type Settings struct {
-	Name   string
-	APIKey string
-	Model  string
+	Name          string
+	GeminiAPIKey  string
+	GeminiModel   string
+	OpenAIAPIKey  string
+	OpenAIModel   string
+	OpenAIBaseURL string
 }
