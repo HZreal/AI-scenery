@@ -211,7 +211,7 @@ npm test
 
 ## 10. Go/Gin 的补充实现：工厂模式与 Gemini
 
-同一阶段还提供了 [Gin LLM API Demo](../demos/01-llm-api/src/gin_api/README.md)。它保留 `/api/chat`、SSE、`metadata`、`/openapi.json` 和 `/docs` 这些对调用方稳定的契约，但把模型接入替换为 Go 的分层实现：
+同一阶段还提供 Go/Gin lesson。它在统一服务中暴露 `/api/llm/chat`，保留 SSE、`metadata`、`/openapi.json` 和 `/docs` 这些对调用方稳定的契约，并将模型接入替换为 Go 的分层实现：
 
 ```text
 Gin Handler
@@ -221,7 +221,7 @@ Gin Handler
   -> 对应厂商 SDK
 ```
 
-这两个概念要区分：`Provider` 接口让 HTTP 处理器不依赖某个模型 SDK；`Factory` 根据 `AI_SCENERY_GO_PROVIDER` 在启动时决定创建 `mock`、Gemini 或 OpenAI Provider。新增其他模型时，只要实现接口并在 Factory 注册 Builder，路由和响应契约都不需要修改。
+这两个概念要区分：根级 `internal/llm` 的 `Provider` 接口让 HTTP 处理器不依赖某个模型 SDK；`Factory` 根据 `AI_SCENERY_PROVIDER` 在统一服务启动时决定创建 `mock`、Gemini 或 OpenAI Provider。新增其他模型时，只要实现接口并在 Factory 注册 Builder，路由和响应契约都不需要修改。
 
 Gemini 的角色表达与通用消息结构不同：`system` 进入 `SystemInstruction`，`user` 保持 `user`，`assistant` 映射为 Gemini 的 `model`。OpenAI Provider 则将三种角色作为 Responses API 的输入消息传递，并在 `mode=json` 时启用 JSON Schema。适配器正是用来屏蔽这类模型厂商差异的边界。
 

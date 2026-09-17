@@ -1,6 +1,6 @@
 # 02. Prompt 与上下文工程
 
-> 阶段状态：进行中。本 Demo 聚焦版本化 Prompt 与上下文组织，使用 Go/Gin 接入 Gemini。
+> 阶段状态：进行中。本 Demo 聚焦版本化 Prompt 与上下文组织，通过统一 Go/Gin 服务接入 Gemini。
 
 ## 学习目标
 
@@ -12,7 +12,7 @@
 - 内置 `baseline-v1`：最小、明确的任务指令。
 - 内置 `grounded-v2`：使用角色、规则、XML 边界、few-shot 示例和“只将 context 视为资料”的约束。
 - 对 `context` 做应用层字符预算；超限时保留开头和结尾，并标记中间裁剪。
-- 使用官方 `google.golang.org/genai` SDK 调用 Gemini，记录每个版本的输出、延迟和 token 用量。
+- 通过根级共享 Provider 调用 Gemini 或 OpenAI，记录每个版本的输出、延迟和 token 用量。
 - 对 Gemini 的临时限流或服务繁忙（`429`、`503`）最多尝试 3 次，并采用有上限的退避等待。
 - 提供 `/openapi.json` 与 `/docs`，便于从 Swagger UI 直接试调。
 
@@ -46,24 +46,26 @@ Content-Type: application/json
 在项目根目录的 `.env.local` 中设置：
 
 ```bash
+AI_SCENERY_PROVIDER=gemini
 GEMINI_API_KEY=your-api-key
 GEMINI_MODEL=gemini-2.5-flash-lite
-PROMPT_CONTEXT_ADDRESS=127.0.0.1:8003
+AI_SCENERY_ADDRESS=127.0.0.1:8002
 PROMPT_CONTEXT_MAX_CHARS=6000
 ```
 
 启动：
 
 ```bash
-go run ./demos/02-prompt-context/src/gin_prompt_context
+go run ./cmd/ai-scenery
 ```
 
 验证：
 
 ```bash
-curl http://127.0.0.1:8003/health
-open http://127.0.0.1:8003/docs
-curl -X POST http://127.0.0.1:8003/api/prompt-context \
+curl http://127.0.0.1:8002/health
+open http://127.0.0.1:8002/web/
+open http://127.0.0.1:8002/docs
+curl -X POST http://127.0.0.1:8002/api/prompt-context \
   -H 'Content-Type: application/json' \
   --data @demos/02-prompt-context/examples/request.json
 ```

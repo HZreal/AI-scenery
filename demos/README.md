@@ -7,10 +7,11 @@
 ```text
 demos/<number>-<topic>/
   README.md
-  src/
-  tests/
+  lesson/            # Go 版阶段特有逻辑；公共能力位于根级 internal/
   examples/
 ```
+
+Python 等独立语言实现仍可在阶段目录的 `src/`、`tests/` 中保留，用于横向对照。
 
 ## README 推荐结构
 
@@ -59,4 +60,3 @@ demos/<number>-<topic>/
   "errors": []
 }
 ```
-

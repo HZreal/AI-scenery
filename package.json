@@ -4,6 +4,7 @@
   "description": "AI Scenery 是一个用于个人学习 AI 与 AI Agent 后端应用开发的笔记和实践仓库。",
   "private": true,
   "scripts": {
+    "start:go": "go run ./cmd/ai-scenery",
     "test": "npm run test:python && npm run test:node && npm run test:go",
     "test:python": "PYTHONPATH=demos/01-llm-api/src uv run python -m unittest discover -s demos/01-llm-api/tests -v",
     "test:node": "node --test",

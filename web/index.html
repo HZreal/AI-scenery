@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Scenery 学习控制台</title>
+    <link rel="stylesheet" href="/web/styles.css">
+  </head>
+  <body>
+    <div class="shell">
+      <aside>
+        <p class="eyebrow">AI SCENERY</p>
+        <h1>学习控制台</h1>
+        <nav id="demo-nav" aria-label="学习阶段"></nav>
+        <div class="aside-footer"><a href="/docs" target="_blank" rel="noreferrer">OpenAPI 文档</a></div>
+      </aside>
+      <main>
+        <header>
+          <div><p class="eyebrow" id="phase-label">阶段 01</p><h2 id="demo-title">LLM 应用基础</h2></div>
+          <span class="status" id="service-status">检查服务中</span>
+        </header>
+        <section class="workspace">
+          <form id="request-form" class="request-panel"></form>
+          <section class="response-panel" aria-live="polite">
+            <div class="response-header"><h3>运行结果</h3><button id="clear-output" class="icon-button" type="button" title="清空结果">×</button></div>
+            <div id="response-summary" class="empty-state">选择一个学习阶段并发送请求。</div>
+            <div id="response-content"></div>
+            <details id="raw-response" hidden><summary>查看原始响应</summary><pre id="raw-json"></pre></details>
+          </section>
+        </section>
+      </main>
+    </div>
+    <script src="/web/app.js"></script>
+  </body>
+</html>

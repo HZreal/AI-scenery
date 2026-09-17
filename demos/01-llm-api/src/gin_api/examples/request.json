@@ -1,7 +1,0 @@
-{
-  "messages": [
-    {"role": "system", "content": "你是 AI 学习助手。"},
-    {"role": "user", "content": "用一句话解释什么是工具调用。"}
-  ],
-  "mode": "text"
-}

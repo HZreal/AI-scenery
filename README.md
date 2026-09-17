@@ -24,6 +24,9 @@ AI Scenery 是一个用于个人学习 AI 与 AI Agent 后端应用开发的笔�
 ```text
 notes/              # 学习笔记和路线图
 demos/              # 每个技术点一个可运行 demo
+cmd/                # 统一 Go 服务入口
+internal/           # 仅仓库内部复用的 Go 基础设施
+web/                # 统一学习控制台页面
 resources/          # 论文、官方文档、数据集和资料
 scripts/            # 评测、导入、辅助脚本
 ```
@@ -67,6 +70,24 @@ demos/<number>-<topic>/
   tests/
   examples/
 ```
+
+## 统一 Go 学习服务
+
+Go 阶段共用一个 Gin 服务。模型 Provider、配置加载、错误协议和网页不在各阶段重复实现；每个阶段只保留自己的 lesson 逻辑、文档和样例。
+
+```bash
+AI_SCENERY_PROVIDER=mock go run ./cmd/ai-scenery
+```
+
+也可以运行 `npm run start:go`。
+
+默认地址为 `http://127.0.0.1:8002`：
+
+- `http://127.0.0.1:8002/web/`：可视化学习控制台，支持普通响应、SSE 与 Prompt 对比。
+- `http://127.0.0.1:8002/docs`：合并后的 Swagger UI。
+- `GET /api/catalog`：当前已注册 Demo 的目录。
+
+真实模型调用时，在 `.env.local` 中将 `AI_SCENERY_PROVIDER` 改为 `gemini` 或 `openai`，并填写相应密钥。
 
 ## 学习路径
 

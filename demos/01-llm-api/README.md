@@ -9,10 +9,10 @@
 ## 本阶段产出
 
 - Python/Flask 服务：`src/llm_api/`，支持 `mock` 与 OpenAI Responses Provider。
-- Go/Gin 服务：`src/gin_api/`，通过工厂模式支持 `mock`、Gemini、OpenAI Provider。
-- 统一接口：`POST /api/chat`，普通响应、结构化 JSON 与 SSE 都采用稳定的应用层响应协议。
-- API 契约：Python 与 Go 服务均提供 `/openapi.json` 和 `/docs`。
-- 浏览器实践：`src/public/index.html` 通过 SSE 实现同页连续聊天与实时增量显示。
+- Go lesson：`lesson/`，通过根级 Provider 工厂支持 `mock`、Gemini、OpenAI。
+- 统一服务接口：`POST /api/llm/chat`，普通响应、结构化 JSON 与 SSE 都采用稳定的应用层响应协议。
+- API 契约：统一服务提供 `/openapi.json` 和 `/docs`。
+- 浏览器实践：根级 `web/` 统一展示所有阶段的普通响应、SSE 与结构化数据。
 - 学习讲解：[第一阶段后端实践讲解](../../notes/01-llm-api-backend-practice.md)。
 
 ## 技术选型
@@ -35,7 +35,7 @@ Python 版本使用 Flask 和标准库 HTTP，方便拆开理解 Web 路由、�
 ## 接口概览
 
 ```http
-POST /api/chat
+POST /api/llm/chat
 Content-Type: application/json
 ```
 
@@ -68,13 +68,19 @@ OPENAI_API_KEY=your-api-key
 
 ## 启动服务
 
-从项目根目录启动：
+Python/Flask 版本仍可独立启动，默认监听 `http://127.0.0.1:8001`：
 
 ```bash
 PYTHONPATH=demos/01-llm-api/src uv run python -m llm_api.server
 ```
 
-服务默认监听 `http://127.0.0.1:8001`。保持这个终端运行，再打开另一个终端验证接口。
+Go 版与阶段 2 共用统一服务：
+
+```bash
+AI_SCENERY_PROVIDER=mock go run ./cmd/ai-scenery
+```
+
+服务默认监听 `http://127.0.0.1:8002`。在浏览器打开 `http://127.0.0.1:8002/web/`，可视化查看普通响应、SSE 与元数据。
 
 ## 验证接口
 
@@ -92,7 +98,7 @@ curl http://127.0.0.1:8001/health
 open http://127.0.0.1:8001/docs
 ```
 
-浏览器会打开 Swagger UI。展开 `POST /api/chat`，点击 `Try it out`，填写请求体后即可直接发起请求；它是调试接口最方便的入口。
+浏览器会打开 Flask 版 Swagger UI。展开 `POST /api/chat`，点击 `Try it out`，填写请求体后即可直接发起请求；它是调试接口最方便的入口。统一 Go 服务则在 `http://127.0.0.1:8002/docs` 提供 `POST /api/llm/chat`。
 
 也可以直接查看 OpenAPI 描述文件：
 
@@ -169,4 +175,4 @@ PYTHONPATH=demos/01-llm-api/src uv run python -m unittest discover -s demos/01-l
 
 本阶段还不是 Agent：没有工具调用、RAG、任务循环、长期记忆、审批或多 Agent 编排。下一阶段会先解决“如何设计、版本化和裁剪 Prompt 与上下文”，再逐步把它们组合进 Agent。
 
-Go/Gin 的运行与 Provider 配置见 [src/gin_api/README.md](src/gin_api/README.md)。
+Go 的共享 Provider、统一入口与页面见仓库根目录 [README](../../README.md)。
