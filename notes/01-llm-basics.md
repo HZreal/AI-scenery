@@ -44,3 +44,5 @@
 ## OpenAPI
 
 OpenAPI 是接口的标准说明书。`/openapi.json` 供程序读取、生成客户端或做契约检查；`/docs` 是同一份规范的浏览器界面，可直接试调接口。Schema 与 Flask 路由共用定义，避免文档和代码分叉。
+
+完整的后端实践讲解见 [01-llm-api-backend-practice.md](01-llm-api-backend-practice.md)。
