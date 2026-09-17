@@ -97,7 +97,21 @@ func geminiInput(request chat.Request) ([]*genai.Content, *genai.GenerateContent
 		options.SystemInstruction = genai.NewContentFromText(strings.Join(systemParts, "\n"), genai.RoleUser)
 	}
 	if request.Mode == chat.ModeJSON {
+		// MIME 类型与 Schema 要同时提供，避免模型返回 Markdown 或任意 JSON 形状。
 		options.ResponseMIMEType = "application/json"
+		options.ResponseSchema = geminiStructuredOutputSchema()
 	}
 	return contents, options
+}
+
+func geminiStructuredOutputSchema() *genai.Schema {
+	return &genai.Schema{
+		Type: genai.TypeObject,
+		Properties: map[string]*genai.Schema{
+			"topic":      {Type: genai.TypeString},
+			"summary":    {Type: genai.TypeString},
+			"key_points": {Type: genai.TypeArray, Items: &genai.Schema{Type: genai.TypeString}},
+		},
+		Required: []string{"topic", "summary", "key_points"},
+	}
 }

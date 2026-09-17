@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"google.golang.org/genai"
+
 	"github.com/HZreal/AI-scenery/demos/01-llm-api/src/gin_api/internal/chat"
 )
 
@@ -55,8 +57,11 @@ func TestGeminiInputMapsSystemAndAssistantRoles(t *testing.T) {
 	}
 
 	contents, options := geminiInput(request)
-	if options.SystemInstruction == nil || options.ResponseMIMEType != "application/json" {
-		t.Fatal("expected system instruction and JSON mode configuration")
+	if options.SystemInstruction == nil || options.ResponseMIMEType != "application/json" || options.ResponseSchema == nil {
+		t.Fatal("expected system instruction and structured JSON configuration")
+	}
+	if options.ResponseSchema.Type != genai.TypeObject || len(options.ResponseSchema.Required) != 3 {
+		t.Fatalf("unexpected Gemini JSON schema: %#v", options.ResponseSchema)
 	}
 	if len(contents) != 2 || contents[0].Role != "user" || contents[1].Role != "model" {
 		t.Fatalf("unexpected Gemini role mapping: %#v", contents)
