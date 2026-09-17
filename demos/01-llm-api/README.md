@@ -1,12 +1,23 @@
 # 01. LLM 后端接口
 
+> 阶段状态：已完成。下一阶段进入 [Prompt 与上下文工程](../../notes/02-prompt-context.md)。
+
 ## 学习目标
 
-学习 LLM 后端接口的最小封装：消息结构、上下文预算、普通/流式响应、结构化输出、usage、成本、错误 trace 与 OpenAPI。
+把一次 LLM 调用封装成稳定、可观察、可测试的后端能力：消息结构、上下文预算、普通/流式响应、结构化输出、usage、成本、错误 trace 与 OpenAPI。
+
+## 本阶段产出
+
+- Python/Flask 服务：`src/llm_api/`，支持 `mock` 与 OpenAI Responses Provider。
+- Go/Gin 服务：`src/gin_api/`，通过工厂模式支持 `mock`、Gemini、OpenAI Provider。
+- 统一接口：`POST /api/chat`，普通响应、结构化 JSON 与 SSE 都采用稳定的应用层响应协议。
+- API 契约：Python 与 Go 服务均提供 `/openapi.json` 和 `/docs`。
+- 浏览器实践：`src/public/index.html` 通过 SSE 实现同页连续聊天与实时增量显示。
+- 学习讲解：[第一阶段后端实践讲解](../../notes/01-llm-api-backend-practice.md)。
 
 ## 技术选型
 
-本 demo 使用 Flask 实现 HTTP 层；模型调用仍使用 Python 标准库，便于分别理解 Web 路由、请求结构、响应结构和错误边界。
+Python 版本使用 Flask 和标准库 HTTP，方便拆开理解 Web 路由、请求结构、响应结构与错误边界。Go 版本使用 Gin、Google GenAI SDK 和 OpenAI Go SDK，侧重 Provider 接口、工厂模式与多模型适配。
 
 默认使用 `mock` provider，方便没有 API key 时也能跑通接口。你稍后在项目根目录的 `.env.local` 中填入真实 `OPENAI_API_KEY` 后，可切换为 `openai` provider。
 
@@ -19,6 +30,7 @@
 - **流式响应**：`stream=true` 返回 SSE 的 metadata、delta、completed 事件。
 - **错误边界**：错误响应包含 code 和 trace id。
 - **OpenAPI**：`/openapi.json` 提供规范，`/docs` 提供 Swagger UI。
+- **Provider 适配**：模型厂商的消息格式、结构化输出和流式细节封装在 Provider 内，HTTP 调用方不依赖某个 SDK。
 
 ## 接口概览
 
@@ -144,13 +156,17 @@ PYTHONPATH=demos/01-llm-api/src uv run python -m unittest discover -s demos/01-l
 
 ## 完成标准
 
-- 支持普通文本输出。
-- 支持结构化 JSON 输出。
-- 支持流式输出。
-- 错误响应包含 trace id。
+- [x] 支持普通文本、结构化 JSON 与 SSE 流式输出。
+- [x] 支持 `system`、`user`、`assistant` 消息与输入预算。
+- [x] 正常和错误响应均包含可关联的 `trace_id`。
+- [x] 提供 OpenAPI、Swagger UI、请求/响应样例和最小契约测试。
+- [x] Python 接入 OpenAI；Go 接入 Gemini 与 OpenAI，并以 mock 支持无密钥本地验证。
+- [x] Gemini JSON 输出通过 `ResponseMIMEType + ResponseSchema` 约束为对象结构。
 
 ## 补充说明
 
-这个 demo 使用 Flask 是为了学习 Python Web API 的路由、测试客户端和 SSE 响应；仍然没有引入 OpenAI SDK，目的是把“后端 API 如何包装 LLM 调用”这件事拆清楚。后续可以用 Gin 或 Express 实现同一接口作横向比较。
+当前浏览器聊天页的会话历史只保存在页面内存；刷新页面后会丢失，后端也没有持久化 `session_id`。这是有意保留给后续“状态、记忆与会话”阶段的边界。
 
-Go/Gin 的对应实现见 [src/gin_api/README.md](src/gin_api/README.md)，它使用模型提供商接口和工厂模式，并接入 Gemini API。
+本阶段还不是 Agent：没有工具调用、RAG、任务循环、长期记忆、审批或多 Agent 编排。下一阶段会先解决“如何设计、版本化和裁剪 Prompt 与上下文”，再逐步把它们组合进 Agent。
+
+Go/Gin 的运行与 Provider 配置见 [src/gin_api/README.md](src/gin_api/README.md)。
