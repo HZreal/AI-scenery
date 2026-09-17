@@ -46,10 +46,10 @@ OPENAI_BASE_URL=
 在仓库根目录运行：
 
 ```bash
-GOTOOLCHAIN=local go run ./demos/01-llm-api/src/gin_api
+go run ./demos/01-llm-api/src/gin_api
 ```
 
-`GOTOOLCHAIN=local` 可确保本项目保持使用 `go.mod` 声明的 Go 1.23.7，而不会自动下载更高版本工具链。
+本项目当前最低要求 Go `1.25.0`，用于匹配新版 OpenAI SDK；当前本机已验证 Go `1.26.8` 可运行。默认 `GOTOOLCHAIN=auto` 会在项目需要更高版本时按 `go.mod` 自动选择工具链。
 
 ## 在 GoLand 中运行
 
@@ -59,7 +59,7 @@ GOTOOLCHAIN=local go run ./demos/01-llm-api/src/gin_api
 - `Working directory` 设为仓库根目录 `/Users/huang/Documents/ChatGPT/AI-scenery`，这样才能自动读取根目录的 `.env.local`。
 - 开始阶段可在环境变量中设置 `AI_SCENERY_GO_PROVIDER=mock`；需要调用 Gemini 时只在 `.env.local` 设置 `GEMINI_API_KEY`。
 
-GoLand 应使用本项目现有的 Go 1.23.7 SDK。该运行配置不需要 Python SDK，也不需要把 `go run` 填到 Python 的脚本路径。
+GoLand 应使用当前安装的 Go 1.26.8 SDK（`/usr/local/go`）。该运行配置不需要 Python SDK，也不需要把 `go run` 填到 Python 的脚本路径。
 
 ## 验证接口
 
@@ -98,7 +98,7 @@ curl -N -X POST http://127.0.0.1:8002/api/chat \
 ## 运行测试
 
 ```bash
-GOTOOLCHAIN=local go test ./...
+go test ./...
 ```
 
 测试覆盖 API 成功与错误响应、OpenAPI 暴露、Gemini/OpenAI 消息角色映射，以及两种 Provider 缺失密钥时的工厂保护。它们使用本地 stub 或 mock，不会发出真实模型请求。
