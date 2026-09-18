@@ -13,7 +13,7 @@
 - 内置 `grounded-v2`：使用角色、规则、XML 边界、few-shot 示例和“只将 context 视为资料”的约束。
 - 对 `context` 做应用层字符预算；超限时保留开头和结尾，并标记中间裁剪。
 - 通过根级共享 Provider 调用 Gemini 或 OpenAI，记录每个版本的输出、延迟和 token 用量。
-- 对 Gemini 的临时限流或服务繁忙（`429`、`503`）最多尝试 3 次，并采用有上限的退避等待。
+- 对 Gemini 服务暂时繁忙（`503`）最多尝试 3 次，并采用有上限的退避等待；配额耗尽会直接返回明确错误。
 - 提供 `/openapi.json` 与 `/docs`，便于从 Swagger UI 直接试调。
 
 ## 重要设计
@@ -76,7 +76,7 @@ curl -X POST http://127.0.0.1:8002/api/prompt-context \
 - 传入未知版本时返回 `400 invalid_prompt_version` 和 `trace_id`。
 - 超过 `PROMPT_CONTEXT_MAX_CHARS` 的上下文会标记 `truncated: true`。
 - 在 Gemini 可用时，同一任务可对比两个版本的输出、延迟和 token 用量；不要只凭单次结果就断言某版更好。
-- `429`、`503` 会由 SDK 在单次请求内重试；持续失败仍返回 `502 provider_api_error` 与 `trace_id`，便于区分上游故障和业务校验错误。
+- `503` 会由 SDK 在单次请求内重试；`429` 配额耗尽会返回 `provider_quota_exceeded` 与 `trace_id`，页面会显示错误而不是误报流式完成。
 
 运行测试：
 

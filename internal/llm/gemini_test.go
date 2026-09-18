@@ -2,6 +2,7 @@ package llm
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
 
@@ -63,5 +64,23 @@ func TestGeminiInputMapsSystemAndAssistantRoles(t *testing.T) {
 	}
 	if len(contents) != 2 || contents[0].Role != "user" || contents[1].Role != "model" {
 		t.Fatalf("unexpected Gemini role mapping: %#v", contents)
+	}
+}
+
+func TestGeminiRequestErrorClassifiesQuotaAndServiceAvailability(t *testing.T) {
+	quota := geminiRequestError("provider_api_error", "Gemini API 调用失败", errors.New("RESOURCE_EXHAUSTED: quota exceeded"))
+	if quota.Code != "provider_quota_exceeded" || quota.StatusCode != 429 {
+		t.Fatalf("unexpected quota error: %#v", quota)
+	}
+	unavailable := geminiRequestError("provider_api_error", "Gemini API 调用失败", errors.New("UNAVAILABLE: high demand"))
+	if unavailable.Code != "provider_unavailable" || unavailable.StatusCode != 503 {
+		t.Fatalf("unexpected unavailable error: %#v", unavailable)
+	}
+}
+
+func TestGeminiRetryOptionsOnlyRetriesServiceUnavailable(t *testing.T) {
+	opts := geminiRetryOptions()
+	if opts.Attempts == nil || *opts.Attempts != 3 || len(opts.HTTPStatusCodes) != 1 || opts.HTTPStatusCodes[0] != 503 {
+		t.Fatalf("unexpected retry options: %#v", opts)
 	}
 }

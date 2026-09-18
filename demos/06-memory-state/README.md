@@ -1,10 +1,10 @@
-# 06. Memory State
+# 06. 状态与记忆
 
-## Goal
+## 学习目标
 
 学习会话状态、用户偏好和长期记忆的边界。
 
-## API Sketch
+## 接口草图
 
 ```http
 POST /api/memory-state
@@ -18,9 +18,8 @@ Content-Type: application/json
 }
 ```
 
-## Acceptance
+## 完成标准
 
 - 同一 session 能延续上下文。
 - 用户偏好能影响后续回答。
 - 清除 session 后不再使用旧上下文。
-

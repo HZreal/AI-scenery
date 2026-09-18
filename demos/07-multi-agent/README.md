@@ -1,10 +1,10 @@
-# 07. Multi Agent
+# 07. 多 Agent 协作
 
-## Goal
+## 学习目标
 
 学习多个 Agent 如何分工、交接和审查结果。
 
-## API Sketch
+## 接口草图
 
 ```http
 POST /api/multi-agent
@@ -17,9 +17,8 @@ Content-Type: application/json
 }
 ```
 
-## Acceptance
+## 完成标准
 
 - Planner 输出步骤。
 - Worker 执行步骤。
 - Reviewer 给出审查结果。
-

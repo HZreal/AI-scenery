@@ -22,6 +22,15 @@ class ChatAPITest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json(), {"status": "ok"})
 
+    def test_flask_serves_streaming_chat_page(self):
+        response = self.client.get("/")
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b"LLM", response.data)
+            self.assertIn(b'fetch("/api/chat"', response.data)
+        finally:
+            response.close()
+
     def test_text_mode_returns_response_contract(self):
         response = self.client.post(
             "/api/chat",

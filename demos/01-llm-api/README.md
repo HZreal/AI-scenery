@@ -74,6 +74,8 @@ Python/Flask 版本仍可独立启动，默认监听 `http://127.0.0.1:8001`：
 PYTHONPATH=demos/01-llm-api/src uv run python -m llm_api.server
 ```
 
+打开 `http://127.0.0.1:8001/` 可使用阶段 1 的流式聊天页。它向 Flask 的 `POST /api/chat` 发起同源请求，Flask 调用当前配置的 Provider，并将 SSE `delta` 事件实时显示在页面中。
+
 Go 版与阶段 2 共用统一服务：
 
 ```bash

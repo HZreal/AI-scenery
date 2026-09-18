@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Iterator
 
-from flask import Flask, Response, jsonify, stream_with_context
+from flask import Flask, Response, jsonify, send_from_directory, stream_with_context
 from flask_smorest import Api, Blueprint
 
 from .schemas import ChatInputSchema
@@ -21,6 +21,7 @@ from .service import (
 )
 
 blp = Blueprint("llm", __name__, description="LLM application basics")
+PUBLIC_DIR = Path(__file__).resolve().parents[1] / "public"
 
 
 @blp.route("/health", methods=["GET"])
@@ -71,6 +72,10 @@ def create_app() -> Flask:
     )
     api = Api(app)
     api.register_blueprint(blp)
+
+    @app.get("/")
+    def chat_page() -> Response:
+        return send_from_directory(PUBLIC_DIR, "index.html")
 
     @app.errorhandler(422)
     def invalid_schema(error):

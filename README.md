@@ -66,10 +66,11 @@ uv add <package>
 ```text
 demos/<number>-<topic>/
   README.md
-  src/
-  tests/
+  lesson/            # Go 版阶段特有逻辑
   examples/
 ```
+
+Python 等独立语言实现可在阶段目录中保留 `src/`、`tests/`，用于横向对照。
 
 ## 统一 Go 学习服务
 

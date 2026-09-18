@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -33,6 +34,12 @@ func newRouter(provider llm.Provider, cfg config.Config) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Logger(), gin.Recovery())
+	router.Use(func(c *gin.Context) {
+		if strings.HasPrefix(c.Request.URL.Path, "/web/") {
+			c.Header("Cache-Control", "no-store")
+		}
+		c.Next()
+	})
 	router.GET("/", func(c *gin.Context) { c.Redirect(http.StatusFound, "/web/") })
 	router.StaticFS("/web", http.Dir("web"))
 	router.GET("/health", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "ok"}) })

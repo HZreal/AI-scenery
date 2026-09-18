@@ -1,6 +1,7 @@
 {
   "name": "ai-scenery",
   "version": "1.0.0",
+  "type": "module",
   "description": "AI Scenery 是一个用于个人学习 AI 与 AI Agent 后端应用开发的笔记和实践仓库。",
   "private": true,
   "scripts": {

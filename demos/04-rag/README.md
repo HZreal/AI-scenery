@@ -1,10 +1,10 @@
-# 04. RAG
+# 04. RAG 与知识库
 
-## Goal
+## 学习目标
 
 基于本项目学习笔记实现知识问答，回答必须带来源。
 
-## API Sketch
+## 接口草图
 
 ```http
 POST /api/rag
@@ -17,9 +17,8 @@ Content-Type: application/json
 }
 ```
 
-## Acceptance
+## 完成标准
 
 - 能检索 `notes/` 中的内容。
 - 回答包含 sources。
 - 无依据问题不编造。
-

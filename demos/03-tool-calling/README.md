@@ -1,10 +1,10 @@
-# 03. Tool Calling
+# 03. 工具调用
 
-## Goal
+## 学习目标
 
 学习如何让模型安全地调用后端函数完成确定性任务。
 
-## API Sketch
+## 接口草图
 
 ```http
 POST /api/tool-calling
@@ -17,9 +17,8 @@ Content-Type: application/json
 }
 ```
 
-## Acceptance
+## 完成标准
 
 - 工具参数有 schema 和校验。
 - 工具失败时返回清晰错误。
 - 响应记录 tool_calls。
-

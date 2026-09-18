@@ -21,13 +21,7 @@ func newGeminiProvider(settings Settings) (Provider, error) {
 		APIKey:  settings.GeminiAPIKey,
 		Backend: genai.BackendGeminiAPI,
 		HTTPOptions: genai.HTTPOptions{
-			// Do not retry invalid requests; only absorb short provider overloads.
-			RetryOptions: &genai.HTTPRetryOptions{
-				Attempts:        genai.Ptr(int32(3)),
-				InitialDelay:    genai.Ptr(0.5),
-				MaxDelay:        genai.Ptr(2.0),
-				HTTPStatusCodes: []int32{429, 503},
-			},
+			RetryOptions: geminiRetryOptions(),
 		},
 	})
 	if err != nil {
@@ -40,7 +34,7 @@ func (p *geminiProvider) Generate(ctx context.Context, request Request) (Result,
 	contents, options := geminiInput(request)
 	response, err := p.client.Models.GenerateContent(ctx, p.model, contents, options)
 	if err != nil {
-		return Result{}, NewError("provider_api_error", "Gemini API 调用失败: "+err.Error(), 502)
+		return Result{}, geminiRequestError("provider_api_error", "Gemini API 调用失败", err)
 	}
 	return p.resultFrom(response, request.Mode)
 }
@@ -50,7 +44,7 @@ func (p *geminiProvider) Stream(ctx context.Context, request Request, emit func(
 	var last *genai.GenerateContentResponse
 	for response, err := range p.client.Models.GenerateContentStream(ctx, p.model, contents, options) {
 		if err != nil {
-			return Result{}, NewError("provider_stream_error", "Gemini 流式调用失败: "+err.Error(), 502)
+			return Result{}, geminiRequestError("provider_stream_error", "Gemini 流式调用失败", err)
 		}
 		last = response
 		if text := response.Text(); text != "" {
@@ -63,6 +57,26 @@ func (p *geminiProvider) Stream(ctx context.Context, request Request, emit func(
 		return Result{}, NewError("provider_response_invalid", "Gemini 未返回流式内容", 502)
 	}
 	return p.resultFrom(last, ModeText)
+}
+
+func geminiRetryOptions() *genai.HTTPRetryOptions {
+	return &genai.HTTPRetryOptions{
+		Attempts:        genai.Ptr(int32(3)),
+		InitialDelay:    genai.Ptr(0.5),
+		MaxDelay:        genai.Ptr(2.0),
+		HTTPStatusCodes: []int32{503},
+	}
+}
+
+func geminiRequestError(defaultCode, operation string, err error) *Error {
+	detail := strings.ToLower(err.Error())
+	if strings.Contains(detail, "resource_exhausted") || strings.Contains(detail, "quota exceeded") {
+		return NewError("provider_quota_exceeded", "Gemini 当前 API 配额已耗尽，请在配额恢复后重试，或切换 mock Provider 继续学习。", 429)
+	}
+	if strings.Contains(detail, "unavailable") || strings.Contains(detail, "high demand") {
+		return NewError("provider_unavailable", "Gemini 服务暂时繁忙，请稍后重试。", 503)
+	}
+	return NewError(defaultCode, operation+": "+err.Error(), 502)
 }
 
 func (p *geminiProvider) resultFrom(response *genai.GenerateContentResponse, mode Mode) (Result, error) {
